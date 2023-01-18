@@ -9,11 +9,11 @@ Original Repo(Caffe) : https://github.com/CMU-Perceptual-Computing-Lab/openpose
 
 | CMU's Original Model</br> on Macbook Pro 15" | Mobilenet Variant </br>on Macbook Pro 15" | Mobilenet Variant</br>on Jetson TX2 |
 |:---------|:--------------------|:----------------|
-| ![cmu-model](/etcs/openpose_macbook_cmu.gif)     | ![mb-model-macbook](/etcs/openpose_macbook_mobilenet3.gif) | ![mb-model-tx2](/etcs/openpose_tx2_mobilenet3.gif) |
+| ![cmu-model](/tf-pose-estimation/etcs/openpose_macbook_cmu.gif)     | ![mb-model-macbook](/tf-pose-estimation/etcs/openpose_macbook_mobilenet3.gif) | ![mb-model-tx2](/tf-pose-estimation/etcs/openpose_tx2_mobilenet3.gif) |
 | **~0.6 FPS** | **~4.2 FPS** @ 368x368 | **~10 FPS** @ 368x368 |
 | 2.8GHz Quad-core i7 | 2.8GHz Quad-core i7 | Jetson TX2 Embedded Board | 
 
-Implemented features are listed here : [features](./etcs/feature.md)
+Implemented features are listed here : [features](etcs/feature.md)
 
 ## Install
 
@@ -100,7 +100,7 @@ The image flag MUST be relative to the src folder with no "~", i.e:
 
 Then you will see the screen as below with pafmap, heatmap, result and etc.
 
-![inferent_result](./etcs/inference_result2.png)
+![inferent_result](etcs/inference_result2.png)
 
 ### Realtime Webcam
 
@@ -108,7 +108,7 @@ Then you will see the screen as below with pafmap, heatmap, result and etc.
 $ python3 run_webcam.py --model=mobilenet_thin_432x368 --camera=0
 ```
 
-Then you will see the realtime webcam screen with estimated poses as below. This [Realtime Result](./etcs/openpose_macbook13_mobilenet2.gif) was recored on macbook pro 13" with 3.1Ghz Dual-Core CPU.
+Then you will see the realtime webcam screen with estimated poses as below. This [Realtime Result](etcs/openpose_macbook13_mobilenet2.gif) was recored on macbook pro 13" with 3.1Ghz Dual-Core CPU.
 
 ## Python Usage
 
@@ -124,11 +124,11 @@ image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
 
 ## ROS Support
 
-See : [etcs/ros.md](./etcs/ros.md)
+See : [etcs/ros.md](etcs/ros.md)
 
 ## Training
 
-See : [etcs/training.md](./etcs/training.md)
+See : [etcs/training.md](etcs/training.md)
 
 ## References
 

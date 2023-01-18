@@ -38,7 +38,7 @@ If you want to reproduce the original paper's result, the following setting is r
 
 | Heatmap Loss                              | PAFmap(Part Affinity Field) Loss         |
 |-------------------------------------------|------------------------------------------|
-| ![train_loss_cmu](/etcs/loss_ll_heat.png) | ![train_loss_cmu](/etcs/loss_ll_paf.png) |  
+| ![train_loss_cmu](/tf-pose-estimation/etcsose-estimation/etcs/loss_ll_heat.png) | ![train_loss_cmu](/tf-pose-estimation/etcsose-estimation/etcs/loss_ll_paf.png) |  
 
 As you can see from the table above, training loss was converged at the almost same trends with the original paper.
  

@@ -5,12 +5,8 @@ import ast
 
 import common
 import cv2
-import numpy as np
 from estimator import TfPoseEstimator
 from networks import get_graph_path, model_wh
-
-from lifting.prob_model import Prob3dPose
-from lifting.draw import plot_pose
 
 logger = logging.getLogger('TfPoseEstimator')
 logger.setLevel(logging.DEBUG)

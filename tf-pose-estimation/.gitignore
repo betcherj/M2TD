@@ -107,8 +107,8 @@ timeline*.json
 
 tmp
 models/graph/cmu_*/*.pb
-models/trained/*/checkpoint
+tf-pose-estimation/models/trained/*/checkpoint
 models/trained/*/*.pb
-models/trained/*/model-*.data-*
-models/trained/*/model-*.index
-models/trained/*/model-*.meta
+tf-pose-estimation/models/trained/*/model-*.data-*
+tf-pose-estimation/models/trained/*/model-*.index
+tf-pose-estimation/models/trained/*/model-*.meta
