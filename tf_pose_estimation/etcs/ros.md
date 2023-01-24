@@ -23,7 +23,7 @@ There are dependencies to launch demo,
 
 | CMU<br/>640x360 | Mobilenet_Thin<br/>432x368 |  
 |:----------------|:---------------------------|
-| ![cmu-model](/tf-pose-estimation/etcsose-estimation/etcs/openpose_p40_cmu.gif) | ![cmu-model](/tf-pose-estimation/etcsose-estimation/etcs/openpose_p40_mobilenet.gif) |
+| ![cmu-model](/tf_pose_estimation/etcsose-estimation/etcs/openpose_p40_cmu.gif) | ![cmu-model](/tf_pose_estimation/etcsose-estimation/etcs/openpose_p40_mobilenet.gif) |
 
 Above tests were run on a P40 gpu. Latency between current video frames and processed frames is much lower on mobilenet version.
 

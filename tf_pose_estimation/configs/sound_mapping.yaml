@@ -1,0 +1,11 @@
+itemOne:
+  body_idx: 4
+  sound_file: "sound_5.wav"
+
+itemTwo:
+  body_idx: 3
+  sound_file: "snare.wav"
+
+itemThree:
+  body_idx: 8
+  sound_file: "bongo.wav"

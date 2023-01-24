@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import time
+import yaml
 
 import cv2
 import numpy as np
@@ -21,6 +22,19 @@ logger.addHandler(ch)
 fps_time = 0
 
 
+def load_sound_mappings(config):
+    base_path = os.path.abspath(os.path.dirname(os.curdir)) + "/sounds/"
+    sound_objects = {}
+    for key, item in config.items():
+        body_idx = item['body_idx']
+        logger.debug(base_path + item['sound_file'])
+        logger.debug('----------')
+        sound_objects[body_idx] = {}
+        sound_objects[body_idx]['wav_object'] = simpleaudio.WaveObject.from_wave_file(base_path + item['sound_file'])
+        sound_objects[body_idx]['play_object'] = sound_objects[body_idx]['wav_object'].play()
+    logger.debug(sound_objects)
+    return sound_objects
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='tf-pose-estimation realtime webcam')
     parser.add_argument('--camera', type=int, default=0)
@@ -39,19 +53,18 @@ if __name__ == '__main__':
     logger.info('cam image=%dx%d' % (image.shape[1], image.shape[0]))
 
     #TODO read in more sounds here
-    sounds_dir = os.path.abspath(os.path.dirname(os.curdir)) + "/sounds/"
-    wav_objects = {}
-    play_objects = {}
+    #TODO add config file that mapps sounds to body parts or locations
 
-    for f in os.listdir(sounds_dir):
-        body_idx = int(f.split('_')[1].split('.')[0])
-        wav_objects[body_idx] = simpleaudio.WaveObject.from_wave_file(sounds_dir + f)
-        play_objects[body_idx] = None
+    with open(os.path.abspath(os.path.dirname(os.curdir)) + '/configs/sound_mapping.yaml', 'r') as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+        logger.debug("Read in sound mapping file")
+    logger.debug(config)
+    sound_objects = load_sound_mappings(config)
 
     while True:
         ret_val, image = cam.read()
 
-        logger.debug('image preprocess+')
+        # logger.debug('image preprocess+')
         if args.zoom < 1.0:
             canvas = np.zeros_like(image)
             img_scaled = cv2.resize(image, None, fx=args.zoom, fy=args.zoom, interpolation=cv2.INTER_LINEAR)
@@ -65,23 +78,27 @@ if __name__ == '__main__':
             dy = (img_scaled.shape[0] - image.shape[0]) // 2
             image = img_scaled[dy:image.shape[0], dx:image.shape[1]]
 
-        logger.debug('image process+')
+        # logger.debug('image process+')
         humans = e.inference(image)
 
         #TODO put this in a method
         #TODO figure out how to do motion rather than position
-        logger.debug(humans[0].body_parts.keys())
+        #TODO spin out seperate process that accepts user commands and allows them to add part sound mappings
+        #X, Y Value of body part is between 0, 1
+
         if humans:
             human = humans[0]
-            for body_idx in list(wav_objects.keys()):
-                if body_idx in list(human.body_parts.keys()) and (not play_objects[body_idx] or not play_objects[body_idx].is_playing()):
-                    play_objects[body_idx] = wav_objects[body_idx].play()
+
+            #This code plays if body part appears:
+            for body_idx in list(sound_objects.keys()):
+                if body_idx in list(human.body_parts.keys()) and not sound_objects[body_idx]['play_object'].is_playing():
+                    sound_objects[body_idx]['play_object'] = sound_objects[body_idx]['wav_object'].play()
 
 
-        logger.debug('postprocess+')
+        # logger.debug('postprocess+')
         image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
 
-        logger.debug('show+')
+        # logger.debug('show+')
         cv2.putText(image,
                     "FPS: %f" % (1.0 / (time.time() - fps_time)),
                     (10, 10),  cv2.FONT_HERSHEY_SIMPLEX, 0.5,
@@ -90,6 +107,6 @@ if __name__ == '__main__':
         fps_time = time.time()
         if cv2.waitKey(1) == 27:
             break
-        logger.debug('finished+')
+        # logger.debug('finished+')
 
     cv2.destroyAllWindows()
