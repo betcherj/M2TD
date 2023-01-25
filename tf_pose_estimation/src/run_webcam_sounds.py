@@ -27,12 +27,9 @@ def load_sound_mappings(config):
     sound_objects = {}
     for key, item in config.items():
         body_idx = item['body_idx']
-        logger.debug(base_path + item['sound_file'])
-        logger.debug('----------')
         sound_objects[body_idx] = {}
         sound_objects[body_idx]['wav_object'] = simpleaudio.WaveObject.from_wave_file(base_path + item['sound_file'])
         sound_objects[body_idx]['play_object'] = sound_objects[body_idx]['wav_object'].play()
-    logger.debug(sound_objects)
     return sound_objects
 
 if __name__ == '__main__':
@@ -61,6 +58,16 @@ if __name__ == '__main__':
     logger.debug(config)
     sound_objects = load_sound_mappings(config)
 
+    parts_tracked = [2,3,4,5,7,9,10,12,13]
+    frames_tracked = 24
+    position_stacks = {}
+
+    motion_vectors = {}
+
+    for key in parts_tracked:
+        position_stacks[key] = [[-1,-1] for i in range(frames_tracked)]
+        motion_vectors[key] = [0,0]
+    logger.debug(position_stacks)
     while True:
         ret_val, image = cam.read()
 
@@ -83,19 +90,34 @@ if __name__ == '__main__':
 
         #TODO put this in a method
         #TODO figure out how to do motion rather than position
-        #TODO spin out seperate process that accepts user commands and allows them to add part sound mappings
-        #X, Y Value of body part is between 0, 1
 
         if humans:
+            #TODO make this work for multiple humans
             human = humans[0]
 
             #This code plays if body part appears:
-            for body_idx in list(sound_objects.keys()):
-                if body_idx in list(human.body_parts.keys()) and not sound_objects[body_idx]['play_object'].is_playing():
-                    sound_objects[body_idx]['play_object'] = sound_objects[body_idx]['wav_object'].play()
+            # for body_idx in list(sound_objects.keys()):
+            #     if body_idx in list(human.body_parts.keys()) and not sound_objects[body_idx]['play_object'].is_playing():
+            #         sound_objects[body_idx]['play_object'] = sound_objects[body_idx]['wav_object'].play()
 
+            tracked_in_frame = list(set(parts_tracked).intersection(set(human.body_parts.keys())))
+            for key in tracked_in_frame:
+                position_stacks[key] = [[human.body_parts[key].x, human.body_parts[key].y]] + position_stacks[key]
+                position_stacks[key].pop()
+                motion_vectors[key] = [position_stacks[key][-1][0] - position_stacks[key][0][0], position_stacks[key][-1][1] - position_stacks[key][0][1]]
+
+            tracked_not_in_frame = list(set(parts_tracked).difference(set(human.body_parts.keys())))
+            for key in tracked_not_in_frame:
+                position_stacks[key] = [[-1,-1]] + position_stacks[key]
+                motion_vectors[key] = [0,0]
+
+        else:
+            for key in parts_tracked:
+                position_stacks[key] = [[-1,-1] for i in range(frames_tracked)]
+                motion_vectors[key] = [0,0]
 
         # logger.debug('postprocess+')
+        #TODO can remove this for speed up (helpful for debug of poses)
         image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
 
         # logger.debug('show+')
@@ -108,5 +130,11 @@ if __name__ == '__main__':
         if cv2.waitKey(1) == 27:
             break
         # logger.debug('finished+')
+        logger.debug("++")
+        logger.debug(position_stacks)
+        logger.debug('------------------')
+        logger.debug(motion_vectors)
+        logger.debug("++")
+
 
     cv2.destroyAllWindows()
