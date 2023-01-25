@@ -9,6 +9,7 @@ import numpy as np
 
 from estimator import TfPoseEstimator
 from networks import get_graph_path, model_wh
+from scipy.spatial import distance
 import simpleaudio
 
 logger = logging.getLogger('TfPoseEstimator-WebCam')
@@ -28,6 +29,7 @@ def load_sound_mappings(config):
     for key, item in config.items():
         body_idx = item['body_idx']
         sound_objects[body_idx] = {}
+        sound_objects[body_idx]['vector'] = item['vector']
         sound_objects[body_idx]['wav_object'] = simpleaudio.WaveObject.from_wave_file(base_path + item['sound_file'])
         sound_objects[body_idx]['play_object'] = sound_objects[body_idx]['wav_object'].play()
     return sound_objects
@@ -104,12 +106,20 @@ if __name__ == '__main__':
             for key in tracked_in_frame:
                 position_stacks[key] = [[human.body_parts[key].x, human.body_parts[key].y]] + position_stacks[key]
                 position_stacks[key].pop()
-                motion_vectors[key] = [position_stacks[key][-1][0] - position_stacks[key][0][0], position_stacks[key][-1][1] - position_stacks[key][0][1]]
+
+                # Make sure that the body part has been in the frame for long enough
+                if position_stacks[key][-1][0] != -1:
+                    motion_vectors[key] = [position_stacks[key][-1][0] - position_stacks[key][0][0], position_stacks[key][-1][1] - position_stacks[key][0][1]]
 
             tracked_not_in_frame = list(set(parts_tracked).difference(set(human.body_parts.keys())))
             for key in tracked_not_in_frame:
-                position_stacks[key] = [[-1,-1]] + position_stacks[key]
+                position_stacks[key] = [[-1, -1] for i in range(frames_tracked)]
                 motion_vectors[key] = [0,0]
+
+            for body_idx in list(sound_objects.keys()):
+                if body_idx in list(human.body_parts.keys()) and not sound_objects[body_idx]['play_object'].is_playing() \
+                        and distance.cosine(sound_objects[body_idx]['vector'], motion_vectors[body_idx]) < .1:
+                    sound_objects[body_idx]['play_object'] = sound_objects[body_idx]['wav_object'].play()
 
         else:
             for key in parts_tracked:

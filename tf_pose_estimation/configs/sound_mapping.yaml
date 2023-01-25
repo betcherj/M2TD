@@ -1,11 +1,14 @@
 itemOne:
   body_idx: 7
+  vector: [-20,0]
   sound_file: "sound_6.wav"
 
 itemTwo:
   body_idx: 3
+  vector: [50,0]
   sound_file: "snare.wav"
 
 itemThree:
   body_idx: 4
+  vector: [0, -30]
   sound_file: "bongo.wav"
