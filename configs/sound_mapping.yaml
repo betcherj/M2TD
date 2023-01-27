@@ -1,15 +1,15 @@
 frame_lag: 10
-
+#frame_lag:10
 #background_music: "lofi_background.wav"
 
 parts_tracked:
-  LEFT_WRIST:
-    vector: [ -10,0 ]
-    sound_file: "sound_6.wav"
-  RIGHT_WRIST:
-    vector: [ 10,0 ]
-    sound_file: "bongo.wav"
-#  RIGHT_KNEE:
-#    vector: [ 0, -10 ]
-#    sound_file: "snare.wav"
+#  LEFT_WRIST:
+#    vector: [ -10,0 ]
+#    sound_file: "sound_6.wav"
+#  RIGHT_WRIST:
+#    vector: [ 10,0 ]
+#    sound_file: "bongo.wav"
+  RIGHT_KNEE:
+    vector: [ 0, -10 ]
+    sound_file: "snare.wav"
 

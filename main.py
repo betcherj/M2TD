@@ -2,7 +2,9 @@ import cv2
 import mediapipe as mp
 import os
 import simpleaudio
+import keyboard
 import yaml
+import numpy
 import time
 from utils.file_io import yaml_load
 from scipy.spatial import distance
@@ -93,7 +95,11 @@ if "background_music" in config:
     base_path = os.path.abspath(os.path.dirname(os.curdir)) + "/sounds/"
     background_sound_object = simpleaudio.WaveObject.from_wave_file(base_path + config.background_music)
     background_sound_object.play()
+
+record_mode = False
 cap = cv2.VideoCapture(0)
+recorded_movement = []
+
 with mp_pose.Pose(
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5) as pose:
@@ -110,9 +116,36 @@ with mp_pose.Pose(
     image.flags.writeable = False
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = pose.process(image)
+
+    if keyboard.is_pressed('r'):
+        print("Entering Record Mode...")
+        recorded_movement = []
+        record_mode = True
+    if keyboard.is_pressed('space'):
+        print("End Record Mode...")
+        record_mode = False
+        print(recorded_movement)
+
+
     if results and results.pose_landmarks and results.pose_landmarks.landmark:
+        landmark = results.pose_landmarks.landmark
+
+    if landmark:
         # This method plays sounds based on movements defined in the config file
-        position_stacks, motion_vectors = play_sounds(results.pose_landmarks.landmark, position_stacks, motion_vectors, parts_tracked, frame_lag)
+        #TODO seperate updating position stacks from the sounds
+        position_stacks, motion_vectors = play_sounds(landmark, position_stacks, motion_vectors, parts_tracked, frame_lag)
+        if record_mode:
+            if landmark[mp_pose.PoseLandmark["RIGHT_WRIST"]].visibility > .5:
+                recorded_movement = [[landmark[mp_pose.PoseLandmark["RIGHT_WRIST"]].x,
+                                      landmark[mp_pose.PoseLandmark["RIGHT_WRIST"]].y]] + recorded_movement
+            else:
+                recorded_movement = []
+
+            cv2.circle(image, (10, 20), 10, (0, 0, 255), -1)
+        elif recorded_movement and numpy.allclose(position_stacks, recorded_movement[:1+frame_lag]):
+            #Play sound if we got the recorded move
+            print("HERE!")
+            simpleaudio.WaveObject.from_wave_file(base_path + "sound_6.wav").play()
 
     # Draw the pose annotation on the image.
     image.flags.writeable = True
@@ -123,13 +156,15 @@ with mp_pose.Pose(
         mp_pose.POSE_CONNECTIONS,
         landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
 
+
     cv2.putText(image,
                 "FPS: %f" % (1.0 / (time.time() - fps_time)),
                 (10, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                 (0, 255, 0), 2)
 
     # Flip the image horizontally for a selfie-view display.
-    cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
+    # cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
+    cv2.imshow("Jacks Pose", image)
 
     # Frames per second
     # print("FPS: %f" % (1.0 / (time.time() - fps_time)))
