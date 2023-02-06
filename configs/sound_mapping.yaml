@@ -9,7 +9,7 @@ parts_tracked:
 #  RIGHT_WRIST:
 #    vector: [ 10,0 ]
 #    sound_file: "bongo.wav"
-  RIGHT_KNEE:
-    vector: [ 0, -10 ]
-    sound_file: "snare.wav"
+#  RIGHT_KNEE:
+#    vector: [ 0, -10 ]
+#    sound_file: "snare.wav"
 
