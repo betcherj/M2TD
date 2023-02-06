@@ -5,6 +5,7 @@ from scipy.spatial import distance
 def compare_vectors(a, b):
     return numpy.allclose(a, b)
 
+
 def get_stacks(frame_lag, parts_tracked):
     position_stacks = {}
     motion_vectors = {}
@@ -13,6 +14,7 @@ def get_stacks(frame_lag, parts_tracked):
             position_stacks[body_part] = [[-1, -1] for i in range(frame_lag)]
             motion_vectors[body_part] = [0, 0]
     return position_stacks, motion_vectors
+
 
 def play_sounds(landmark, sound_objects, position_stacks, motion_vectors, parts_tracked, frame_lag):
     #Check if the item is in the frame

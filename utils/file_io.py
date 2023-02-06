@@ -10,9 +10,9 @@ def yaml_load(fileName):
 
     return fc
 
-def load_sound_mappings(parts_tracked):
+def load_sound_mappings(parts_tracked,sound_objects={}):
+    # If this gives unknown format 3 error the wav file is unreadable
     base_path = os.path.abspath(os.path.dirname(os.curdir)) + "/sounds/"
-    sound_objects = {}
     if parts_tracked:
         for body_part, info in parts_tracked.items():
             sound_objects[body_part] = {}

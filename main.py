@@ -61,12 +61,19 @@ with mp_pose.Pose(
     results = pose.process(image)
 
     if keyboard.is_pressed('r'):
+
         print("Entering record mode...")
         done = False
         while not done:
             try:
-                rec_body_part = input("Enter body part to track: ").strip()
+                rec_body_part = input("\nEnter body part to track: ").strip()
+
+                #TODO find a better way of doing this
+                if rec_body_part[0] == 'r':
+                    rec_body_part = rec_body_part[1:]
+
                 file = input("Enter name of .wav file: ").strip()
+                print(rec_body_part, file)
                 if file[-4:] != '.wav':
                     file += '.wav'
                 done = True
@@ -87,7 +94,7 @@ with mp_pose.Pose(
                 motion_vectors[rec_body_part] = [0, 0]
 
                 parts_tracked[rec_body_part] = {'sound_file': file, 'vector': [recorded_movement[-1][0]-recorded_movement[0][0], recorded_movement[-1][1]-recorded_movement[0][1]]}
-                sound_objects = load_sound_mappings(parts_tracked)
+                sound_objects = load_sound_mappings(parts_tracked, sound_objects)
             except Exception as e:
                 print(e)
                 print("Failed to add recorded movement")

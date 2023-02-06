@@ -3,9 +3,9 @@ frame_lag: 10
 #background_music: "lofi_background.wav"
 
 parts_tracked:
-#  LEFT_WRIST:
-#    vector: [ -10,0 ]
-#    sound_file: "sound_6.wav"
+  LEFT_WRIST:
+    vector: [ -10,0 ]
+    sound_file: "clap.wav"
 #  RIGHT_WRIST:
 #    vector: [ 10,0 ]
 #    sound_file: "bongo.wav"
