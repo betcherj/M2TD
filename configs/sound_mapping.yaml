@@ -12,4 +12,3 @@ parts_tracked:
 #  RIGHT_KNEE:
 #    vector: [ 0, -10 ]
 #    sound_file: "snare.wav"
-

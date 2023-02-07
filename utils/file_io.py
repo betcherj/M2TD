@@ -20,3 +20,17 @@ def load_sound_mappings(parts_tracked,sound_objects={}):
             sound_objects[body_part]['wav_object'] = simpleaudio.WaveObject.from_wave_file(base_path + info['sound_file'])
             sound_objects[body_part]['play_object'] = sound_objects[body_part]['wav_object'].play()
     return sound_objects
+
+
+def get_sound_object(file_name):
+    try:
+        base_path = os.path.abspath(os.path.dirname(os.curdir)) + "/sounds/"
+        sound_object = {}
+        sound_object['wav_object'] = simpleaudio.WaveObject.from_wave_file(os.path.join(base_path, file_name))
+        sound_object['play_object'] = sound_object['wav_object'].play()
+    except Exception as e:
+        print("Unable to load sound object for " + file_name)
+        raise e
+
+
+
