@@ -37,7 +37,7 @@ all_parts = ['LEFT_ANKLE', 'LEFT_ELBOW', 'LEFT_FOOT_INDEX', 'LEFT_HEEL', 'LEFT_H
  'LEFT_WRIST', 'RIGHT_ANKLE', 'RIGHT_ELBOW', 'RIGHT_FOOT_INDEX', 'RIGHT_HEEL', 'RIGHT_HIP', 'RIGHT_KNEE', 'RIGHT_SHOULDER', 'RIGHT_WRIST']
 
 all_parts_indexed = {idx: part for idx, part in enumerate(all_parts)}
-positions = {part: np.zeros(frame_lag) for part in all_parts}
+positions = {part: np.zeros((frame_lag,2), dtype=float) - np.ones((frame_lag, 2), dtype=float) for part in all_parts}
 
 
 if "background_music" in config:
