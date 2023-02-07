@@ -50,7 +50,7 @@ cap = cv2.VideoCapture(0)
 recorded_movement = []
 landmark = None
 sound_file = None
-
+min_frame_rate = 1000000
 
 with mp_pose.Pose(
     min_detection_confidence=0.5,
@@ -68,7 +68,8 @@ with mp_pose.Pose(
     image.flags.writeable = False
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = pose.process(image)
-
+    if keyboard.is_pressed('q'):
+        break
     if keyboard.is_pressed('r'):
         print("Entering record mode...")
         done = False
@@ -90,49 +91,34 @@ with mp_pose.Pose(
                 print("Error with opening sound file or mapping body part.. ")
 
         record_mode = True
+        count_down_start_time = time.time()
+        record_start_time=None
+
+    elif record_mode and count_down_start_time and abs(time.time() - count_down_start_time) > 5:
         record_start_time = time.time()
-
-    if record_mode and abs(time.time() - record_start_time) > 3:
+        count_down_start_time = None
+    elif record_mode and record_start_time and abs(time.time() - record_start_time) > 1 and positions:
         record_mode = False
-        move = {}
-        move['tracked_parts'] = recorded_parts
-        move['motion_array'] = np.array([positions[body_part] for body_part in recorded_parts], dtype=float)
-        move['sound_object'] = recorded_sound_object
-        moves.append(move)
-
-    # if keyboard.is_pressed('space'):
-    #     record_mode = False
-    #     if not recorded_movement:
-    #         print('No recorded movement..')
-    #         print("Exiting Record Mode...")
-    #     else:
-    #         try:
-    #             # TODO add move to moves here
-    #
-    #             # Add part to stacks
-    #             # position_stacks[rec_body_part] = [[-1, -1] for i in range(frame_lag)]
-    #             # motion_vectors[rec_body_part] = [0, 0]
-    #             # parts_tracked[rec_body_part] = {'sound_file': file, 'vector': [recorded_movement[-1][0] - recorded_movement[0][0], recorded_movement[-1][1] - recorded_movement[0][1]]}
-    #             # sound_objects = load_sound_mappings(parts_tracked, sound_objects)
-    #         except Exception as e:
-    #             print(e)
-    #             print("Failed to add recorded movement")
-    #         print(recorded_movement)
+        record_start_time = None
+        motion_array = np.array([positions[body_part] for body_part in recorded_parts], dtype=float)
+        if -1 in motion_array[:, :]:
+            print('Some part of move not found in look back window')
+        else:
+            move = {}
+            move['tracked_parts'] = recorded_parts
+            move['motion_array'] = motion_array
+            move['sound_object'] = recorded_sound_object
+            moves.append(move)
+            print(move)
+    if record_mode and record_start_time:
+        cv2.circle(image, (10, 20), 10, (255, 0, 0), -1)
+    elif record_mode and count_down_start_time:
+        cv2.putText(image, str(int(time.time()-count_down_start_time)), (30,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1, cv2.LINE_AA)
 
     if results and results.pose_landmarks:
         landmark = results.pose_landmarks.landmark
         if landmark:
             positions = update_positions_and_play_sounds(landmark, positions, all_parts, frame_lag, moves)
-            # This method plays sounds based on movements defined in the config file
-            #TODO seperate updating position stacks from the sounds
-            #if parts_tracked:
-                #position_stacks, motion_vectors = play_sounds(landmark, sound_objects, position_stacks, motion_vectors, parts_tracked, frame_lag)
-
-            if record_mode:
-                # if landmark[mp_pose.PoseLandmark[rec_body_part]].visibility > .5:
-                #     recorded_movement = [[landmark[mp_pose.PoseLandmark[rec_body_part]].x,
-                #                           landmark[mp_pose.PoseLandmark[rec_body_part]].y]] + recorded_movement
-                cv2.circle(image, (10, 20), 10, (0, 0, 255), -1)
 
     # Draw the pose annotation on the image.
     image.flags.writeable = True
@@ -147,14 +133,14 @@ with mp_pose.Pose(
                 "FPS: %f" % (1.0 / (time.time() - fps_time)),
                 (10, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                 (0, 255, 0), 2)
+    min_frame_rate = min((1.0 / (time.time() - fps_time), min_frame_rate))
 
     # Flip the image horizontally for a selfie-view display.
     # cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
     cv2.imshow("Jacks Pose", image)
 
-    # Frames per second
-    # print("FPS: %f" % (1.0 / (time.time() - fps_time)))
     if cv2.waitKey(5) & 0xFF == 27:
       break
-
+print("FRAME RATE MINIMUM")
+print(min_frame_rate)
 cap.release()

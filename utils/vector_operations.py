@@ -59,12 +59,12 @@ def update_positions_and_play_sounds(landmark, positions, all_parts, frame_lag, 
         captured_motion_array = np.array([positions[body_part] for body_part in move['tracked_parts']], dtype=float)
 
         if not sound_object['play_object'].is_playing() \
-                and np.allclose(captured_motion_array, stored_motion_array, rtol=.1):
+                and np.allclose(captured_motion_array, stored_motion_array, rtol=.5):
             print('played sound !!')
+            print(captured_motion_array)
             sound_object['play_object'] = sound_object['wav_object'].play()
             # Maybe we want to clear the position and motion vectors here (Helps with repeat plays)
-        to_reset += parts
-
+            to_reset += parts
     to_reset = set(to_reset)
     for body_part in to_reset:
         positions[body_part] = np.zeros((frame_lag, 2), dtype=float) - np.ones((frame_lag, 2), dtype=float)
