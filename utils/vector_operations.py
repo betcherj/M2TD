@@ -46,9 +46,7 @@ def update_positions_and_play_sounds(landmark, positions, all_parts, frame_lag, 
     for body_part in tracked_not_in_frame:
         positions[body_part] = np.zeros((frame_lag, 2), dtype=float) - np.ones((frame_lag, 2), dtype=float)
 
-    print(positions['RIGHT_WRIST'].shape)
     for body_part in parts_in_frame:
-        print(np.delete(positions[body_part], -1, axis=0))
         positions[body_part] = np.concatenate(([[landmark[mp.solutions.pose.PoseLandmark[body_part]].x,
                                                 landmark[mp.solutions.pose.PoseLandmark[body_part]].y]],
                                               np.delete(positions[body_part], -1, axis=0)), axis=0)
@@ -61,7 +59,8 @@ def update_positions_and_play_sounds(landmark, positions, all_parts, frame_lag, 
         captured_motion_array = np.array([positions[body_part] for body_part in move['tracked_parts']], dtype=float)
 
         if not sound_object['play_object'].is_playing() \
-                and np.allclose(captured_motion_array, stored_motion_array) < .05:
+                and np.allclose(captured_motion_array, stored_motion_array, rtol=.1):
+            print('played sound !!')
             sound_object['play_object'] = sound_object['wav_object'].play()
             # Maybe we want to clear the position and motion vectors here (Helps with repeat plays)
         to_reset += parts

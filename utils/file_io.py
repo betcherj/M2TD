@@ -31,6 +31,7 @@ def get_sound_object(file_name):
     except Exception as e:
         print("Unable to load sound object for " + file_name)
         raise e
+    return sound_object
 
 
 

@@ -36,7 +36,7 @@ moves = []
 all_parts = ['LEFT_ANKLE', 'LEFT_ELBOW', 'LEFT_FOOT_INDEX', 'LEFT_HEEL', 'LEFT_HIP', 'LEFT_INDEX', 'LEFT_KNEE', 'LEFT_SHOULDER',
  'LEFT_WRIST', 'RIGHT_ANKLE', 'RIGHT_ELBOW', 'RIGHT_FOOT_INDEX', 'RIGHT_HEEL', 'RIGHT_HIP', 'RIGHT_KNEE', 'RIGHT_SHOULDER', 'RIGHT_WRIST']
 
-all_parts_indexed = {idx: part for idx, part in enumerate(all_parts)}
+all_parts_indexed = {str(idx): part for idx, part in enumerate(all_parts)}
 positions = {part: np.zeros((frame_lag,2), dtype=float) - np.ones((frame_lag, 2), dtype=float) for part in all_parts}
 
 
@@ -74,7 +74,7 @@ with mp_pose.Pose(
         done = False
         while not done:
             try:
-                print("Enter idx of parts to track separated by commas: " + str(enumerate(all_parts)))
+                print("Enter idx of parts to track separated by commas: " + str(all_parts_indexed))
                 rec_body_parts = input("Here: ").strip()
                 if rec_body_parts[0] == 'r':
                     rec_body_parts = rec_body_parts[1:]
@@ -92,13 +92,13 @@ with mp_pose.Pose(
         record_mode = True
         record_start_time = time.time()
 
-    if record_mode and abs(time.time() - record_start_time) > 5:
+    if record_mode and abs(time.time() - record_start_time) > 3:
         record_mode = False
         move = {}
         move['tracked_parts'] = recorded_parts
         move['motion_array'] = np.array([positions[body_part] for body_part in recorded_parts], dtype=float)
         move['sound_object'] = recorded_sound_object
-        moves += move
+        moves.append(move)
 
     # if keyboard.is_pressed('space'):
     #     record_mode = False
